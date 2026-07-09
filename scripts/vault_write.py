@@ -119,8 +119,16 @@ def install_file(content: str, dest: Path, direct: bool) -> None:
     with tempfile.NamedTemporaryFile("w", suffix=".md", delete=False, encoding="utf-8") as tmp:
         tmp.write(content)
         staged = tmp.name
+    # NOT install -D: it creates intermediate dirs as root, and Nextcloud
+    # (www-data) cannot then write/rename inside them — device sync breaks.
+    if not dest.parent.is_dir():
+        subprocess.run(
+            ["sudo", "install", "-d", "-o", OWNER_UID, "-g", OWNER_UID, "-m", "755"]
+            + [str(d) for d in sorted(set(dest.parents) - set(dest.parents[-3:]), key=lambda x: len(str(x))) if not d.is_dir()],
+            check=True,
+        )
     subprocess.run(
-        ["sudo", "install", "-D", "-o", OWNER_UID, "-g", OWNER_UID, "-m", "644", staged, str(dest)],
+        ["sudo", "install", "-o", OWNER_UID, "-g", OWNER_UID, "-m", "644", staged, str(dest)],
         check=True,
     )
     Path(staged).unlink(missing_ok=True)
