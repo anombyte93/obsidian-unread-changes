@@ -1,6 +1,6 @@
-import localforage from "localforage";
 import type { App } from "obsidian";
 import type { Baseline } from "../core/types";
+import { IdbKV } from "./idb";
 
 export interface Snapshot {
 	hash: string;
@@ -8,26 +8,23 @@ export interface Snapshot {
 	takenAt: number;
 }
 
+const BASELINE = "baseline";
+const SNAPSHOTS = "snapshots";
+
 /**
  * Per-device storage that must NEVER sync: device identity, scan baseline,
- * last-read snapshots. localStorage for the tiny device id, IndexedDB
- * (localforage) for the rest — both are per-app-install, mobile-safe.
+ * last-read snapshots. localStorage for the tiny identity values, IndexedDB
+ * for the rest — both are per-app-install and mobile-safe. (Deliberately NOT
+ * the plugin data.json API: that file can sync between devices via config-dir
+ * sync, which would corrupt per-device state.)
  */
 export class LocalStore {
-	private baselineStore: ReturnType<typeof localforage.createInstance>;
-	private snapshotStore: ReturnType<typeof localforage.createInstance>;
+	private db: IdbKV;
 	private appId: string;
 
 	constructor(app: App) {
 		this.appId = ((app as unknown as { appId?: string }).appId ?? "vault").toString();
-		this.baselineStore = localforage.createInstance({
-			name: `unread-changes-${this.appId}`,
-			storeName: "baseline",
-		});
-		this.snapshotStore = localforage.createInstance({
-			name: `unread-changes-${this.appId}`,
-			storeName: "snapshots",
-		});
+		this.db = new IdbKV(`unread-changes-db-${this.appId}`, [BASELINE, SNAPSHOTS]);
 	}
 
 	/** Stable, collision-resistant per-install device id (never synced). */
@@ -62,30 +59,30 @@ export class LocalStore {
 	}
 
 	async loadBaseline(): Promise<Baseline> {
-		return (await this.baselineStore.getItem<Baseline>("baseline")) ?? {};
+		return (await this.db.get<Baseline>(BASELINE, "baseline")) ?? {};
 	}
 
 	async saveBaseline(baseline: Baseline): Promise<void> {
-		await this.baselineStore.setItem("baseline", baseline);
+		await this.db.set(BASELINE, "baseline", baseline);
 	}
 
 	async getSnapshot(path: string): Promise<Snapshot | null> {
-		return await this.snapshotStore.getItem<Snapshot>(path);
+		return await this.db.get<Snapshot>(SNAPSHOTS, path);
 	}
 
 	async saveSnapshot(path: string, snapshot: Snapshot): Promise<void> {
-		await this.snapshotStore.setItem(path, snapshot);
+		await this.db.set(SNAPSHOTS, path, snapshot);
 	}
 
 	async renameSnapshot(oldPath: string, newPath: string): Promise<void> {
 		const snap = await this.getSnapshot(oldPath);
 		if (snap) {
-			await this.snapshotStore.setItem(newPath, snap);
-			await this.snapshotStore.removeItem(oldPath);
+			await this.db.set(SNAPSHOTS, newPath, snap);
+			await this.db.delete(SNAPSHOTS, oldPath);
 		}
 	}
 
 	async removeSnapshot(path: string): Promise<void> {
-		await this.snapshotStore.removeItem(path);
+		await this.db.delete(SNAPSHOTS, path);
 	}
 }
