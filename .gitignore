@@ -1,0 +1,8 @@
+node_modules/
+main.js
+*.js.map
+.claude/
+.DS_Store
+
+# local dev/test vaults live in scratchpad, but ignore any accidental local one
+dev-vault/

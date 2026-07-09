@@ -1,0 +1,127 @@
+/* Unread Changes plugin styles */
+
+/* Unread dot on file explorer items */
+.nav-file-title.uc-unread .nav-file-title-content::before {
+	content: "";
+	display: inline-block;
+	width: 8px;
+	height: 8px;
+	margin-right: 6px;
+	border-radius: 50%;
+	background-color: var(--color-blue, #2e80f2);
+	vertical-align: baseline;
+	flex-shrink: 0;
+}
+
+/* Folder rollup count badge */
+.nav-folder-title.uc-has-unread[data-uc-count]::after {
+	content: attr(data-uc-count);
+	margin-left: auto;
+	padding: 0 6px;
+	border-radius: 10px;
+	font-size: 0.75em;
+	line-height: 1.5;
+	background-color: var(--color-blue, #2e80f2);
+	color: var(--text-on-accent);
+	flex-shrink: 0;
+}
+
+/* Banner above changed notes */
+.uc-banner {
+	position: sticky;
+	top: 0;
+	z-index: 10;
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	flex-wrap: wrap;
+	padding: 6px 12px;
+	background-color: var(--background-secondary);
+	border-bottom: 2px solid var(--color-blue, #2e80f2);
+	font-size: var(--font-ui-small);
+}
+
+.uc-banner-text {
+	flex: 1 1 auto;
+	min-width: 200px;
+}
+
+.uc-banner-text .uc-author {
+	font-weight: 600;
+}
+
+.uc-banner-text .uc-summary {
+	font-style: italic;
+	color: var(--text-muted);
+}
+
+.uc-banner-actions {
+	display: flex;
+	gap: 6px;
+	flex-shrink: 0;
+}
+
+.uc-banner-actions button {
+	font-size: var(--font-ui-smaller);
+	padding: 2px 8px;
+}
+
+/* Inbox pane */
+.uc-inbox-empty {
+	color: var(--text-muted);
+	padding: 12px;
+	text-align: center;
+}
+
+.uc-inbox-item {
+	display: flex;
+	flex-direction: column;
+	gap: 2px;
+	padding: 6px 10px;
+	border-radius: var(--radius-s);
+	cursor: pointer;
+}
+
+.uc-inbox-item:hover {
+	background-color: var(--background-modifier-hover);
+}
+
+.uc-inbox-item .uc-inbox-title {
+	font-weight: 500;
+}
+
+.uc-inbox-item .uc-inbox-meta {
+	font-size: var(--font-ui-smaller);
+	color: var(--text-muted);
+}
+
+.uc-inbox-item .uc-inbox-summary {
+	font-size: var(--font-ui-smaller);
+	color: var(--text-muted);
+	font-style: italic;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+/* Diff modal */
+.uc-diff-modal {
+	max-height: 70vh;
+	overflow-y: auto;
+	user-select: text;
+	-webkit-user-select: text;
+}
+
+.uc-diff-modal .uc-diff-added {
+	background-color: rgba(var(--color-green-rgb), 0.22);
+	text-decoration: none;
+}
+
+.uc-diff-modal .uc-diff-removed {
+	background-color: rgba(var(--color-red-rgb), 0.22);
+	text-decoration: line-through;
+}
+
+.uc-diff-context {
+	color: var(--text-muted);
+}

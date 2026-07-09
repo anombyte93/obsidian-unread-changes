@@ -1,0 +1,10 @@
+{
+	"id": "unread-changes",
+	"name": "Unread Changes",
+	"version": "0.1.0",
+	"minAppVersion": "1.11.0",
+	"description": "Unread-message awareness for human+AI co-edited vaults: unread badges, synced read-state, changelog links, attribution, and diffs.",
+	"author": "Hayden / Atlas-AI",
+	"authorUrl": "https://atlas-ai.au",
+	"isDesktopOnly": false
+}
